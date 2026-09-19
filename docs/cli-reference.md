@@ -16,6 +16,8 @@ Supports both `--flag value` and `--flag=value`.
 | `--format` | no | `fcpxml` | `fcpxml`, `premiere`, or `otio` |
 | `--fps` | no | `manifest.fps` | Overrides manifest fps |
 | `--id` | no | `manifest.compositionId ?? "retime-timeline"` | Output timeline/project name |
+| `--width` | no | `manifest.width ?? 1920` | Frame width for the FCPXML `<format>` resource |
+| `--height` | no | `manifest.height ?? 1080` | Frame height for the FCPXML `<format>` resource |
 | `--out` | no | `<manifestDir>/<id>.<ext>` | Output path; parent dirs created |
 
 Extensions (`src/export.ts:31`, `extensionFor`): `premiere` -> `.xml`, `otio` -> `.otio`, else `.fcpxml`.

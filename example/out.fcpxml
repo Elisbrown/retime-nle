@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fcpxml version="1.10">
+  <resources>
+    <format id="r1" name="FFVideoFormat1080p30" frameDuration="1/30s" width="1920" height="1080"/>
+    <asset id="r2" name="intro.mp4" src="static/intro.mp4" start="0s" duration="3s" hasVideo="1" hasAudio="1" format="r1"/>
+    <asset id="r3" name="main.mp4" src="static/main.mp4" start="0s" duration="162/30s" hasVideo="1" hasAudio="1" format="r1"/>
+    <asset id="r4" name="outro.mp4" src="static/outro.mp4" start="0s" duration="2s" hasVideo="1" hasAudio="1" format="r1"/>
+  </resources>
   <library>
     <event name="demo-timeline">
       <project name="demo-timeline">
         <sequence format="r1" duration="10s" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
           <spine>
-        <clip name="Intro" offset="0s" duration="3s" start="0s" src="static/intro.mp4"/>
-        <clip name="Main" offset="3s" duration="5s" start="12/30s" src="static/main.mp4"/>
-        <clip name="Outro" offset="8s" duration="2s" start="0s" src="static/outro.mp4"/>
+        <asset-clip ref="r2" name="Intro" offset="0s" start="0s" duration="3s"/>
+        <asset-clip ref="r3" name="Main" offset="3s" start="12/30s" duration="5s"/>
+        <asset-clip ref="r4" name="Outro" offset="8s" start="0s" duration="2s"/>
           </spine>
         </sequence>
       </project>

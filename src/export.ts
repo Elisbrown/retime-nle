@@ -1,5 +1,8 @@
 import { toFcpxml, toOtio, toPremiereXml } from "./codecs";
+import type { FcpxmlOptions } from "./codecs";
 import type { Clip, ExportFormat } from "./types";
+
+export type TimelineOptions = FcpxmlOptions;
 
 export const validateTimeline = (clips: Clip[], fps: number): void => {
   if (!Number.isFinite(fps) || fps <= 0) {
@@ -21,11 +24,12 @@ export const exportTimeline = (
   fps: number,
   format: ExportFormat,
   compositionId = "retime-timeline",
+  options: TimelineOptions = {},
 ): string => {
   validateTimeline(clips, fps);
   if (format === "otio") return toOtio(clips, fps, compositionId);
   if (format === "premiere") return toPremiereXml(clips, fps, compositionId);
-  return toFcpxml(clips, fps, compositionId);
+  return toFcpxml(clips, fps, compositionId, options);
 };
 
 export const extensionFor = (format: ExportFormat): string =>

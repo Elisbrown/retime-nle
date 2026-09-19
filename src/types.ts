@@ -13,4 +13,8 @@ export type TimelineManifest = {
   fps: number;
   clips: Clip[];
   compositionId?: string;
+  /** Frame width for the FCPXML <format> resource. Defaults to 1920. */
+  width?: number;
+  /** Frame height for the FCPXML <format> resource. Defaults to 1080. */
+  height?: number;
 };

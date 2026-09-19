@@ -15,6 +15,8 @@ type TimelineManifest = {
   fps: number;
   clips: Clip[];
   compositionId?: string;   // defaults to "retime-timeline"
+  width?: number;           // FCPXML <format> width, defaults to 1920
+  height?: number;          // FCPXML <format> height, defaults to 1080
 };
 ```
 

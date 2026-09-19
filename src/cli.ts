@@ -16,13 +16,15 @@ const getArg = (name: string): string | undefined => {
 
 const USAGE = `retime-nle (alias: retime) — NLE timeline exporter for Remotion
 
-Usage: retime-nle --manifest ./timeline.json --format fcpxml|premiere|otio [--fps 30] [--out ./out.timeline] [--id my-comp]
+Usage: retime-nle --manifest ./timeline.json --format fcpxml|premiere|otio [--fps 30] [--out ./out.timeline] [--id my-comp] [--width 1920] [--height 1080]
 
   --manifest  Path to TimelineManifest JSON (required)
   --format    fcpxml (default) | premiere | otio
   --fps       Override manifest fps
   --out       Output path (default: <manifestDir>/<id>.<ext>)
   --id        Timeline/project name (default: manifest compositionId)
+  --width     Frame width for FCPXML <format> (default: manifest width or 1920)
+  --height    Frame height for FCPXML <format> (default: manifest height or 1080)
   --help, -h  Print this help`;
 
 const main = (): void => {
@@ -44,10 +46,12 @@ const main = (): void => {
   const manifest = JSON.parse(raw) as TimelineManifest;
   const fps = Number(getArg("fps") ?? manifest.fps);
   const id = getArg("id") ?? manifest.compositionId ?? "retime-timeline";
+  const width = getArg("width") !== undefined ? Number(getArg("width")) : manifest.width;
+  const height = getArg("height") !== undefined ? Number(getArg("height")) : manifest.height;
   const out =
     getArg("out") ??
     path.join(path.dirname(path.resolve(manifestPath)), `${id}.${extensionFor(format)}`);
-  const text = exportTimeline(manifest.clips, fps, format, id);
+  const text = exportTimeline(manifest.clips, fps, format, id, { width, height });
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
   fs.writeFileSync(path.resolve(out), text, "utf8");
   console.log(`Wrote ${out} (${format}, ${manifest.clips.length} clips @ ${fps}fps)`);
