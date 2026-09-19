@@ -1,0 +1,77 @@
+{
+  "name": "retime-nle",
+  "version": "0.1.0",
+  "description": "NLE timeline exporter for Remotion: FCPXML, Premiere Pro XML, OpenTimelineIO",
+  "keywords": [
+    "remotion",
+    "nle",
+    "fcpxml",
+    "premiere",
+    "opentimelineio",
+    "otio",
+    "video",
+    "timeline",
+    "export"
+  ],
+  "license": "MIT",
+  "author": "Sunyin Elisbrown <sunyinelisbrown@gmail.com> (https://github.com/Elisbrown)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Elisbrown/retime-nle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Elisbrown/retime-nle/issues"
+  },
+  "homepage": "https://github.com/Elisbrown/retime-nle#readme",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "default": "./dist/react.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "retime-nle": "./dist/cli.js",
+    "retime": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build",
+    "export:sample": "node ./dist/cli.js --manifest ./example/timeline.json --format fcpxml --out ./example/out.fcpxml",
+    "pack:dry": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "remotion": ">=4",
+    "@remotion/player": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": false },
+    "remotion": { "optional": true },
+    "@remotion/player": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "typescript": "^5.4.0"
+  }
+}

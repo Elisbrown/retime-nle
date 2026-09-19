@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmeml version="4">
+  <sequence id="demo-timeline">
+    <name>demo-timeline</name>
+    <timebase>30</timebase>
+    <media>
+      <video>
+        <track>
+        <clipitem id="clip-1">
+          <name>Intro</name>
+          <file><pathurl>static/intro.mp4</pathurl></file>
+          <start>0</start>
+          <end>90</end>
+          <in>0</in>
+          <out>90</out>
+        </clipitem>
+        <clipitem id="clip-2">
+          <name>Main</name>
+          <file><pathurl>static/main.mp4</pathurl></file>
+          <start>90</start>
+          <end>240</end>
+          <in>12</in>
+          <out>162</out>
+        </clipitem>
+        <clipitem id="clip-3">
+          <name>Outro</name>
+          <file><pathurl>static/outro.mp4</pathurl></file>
+          <start>240</start>
+          <end>300</end>
+          <in>0</in>
+          <out>60</out>
+        </clipitem>
+        </track>
+      </video>
+    </media>
+  </sequence>
+</xmeml>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fcpxml version="1.10">
+  <library>
+    <event name="demo-timeline">
+      <project name="demo-timeline">
+        <sequence format="r1" duration="10s" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
+          <spine>
+        <clip name="Intro" offset="0s" duration="3s" start="0s" src="static/intro.mp4"/>
+        <clip name="Main" offset="3s" duration="5s" start="12/30s" src="static/main.mp4"/>
+        <clip name="Outro" offset="8s" duration="2s" start="0s" src="static/outro.mp4"/>
+          </spine>
+        </sequence>
+      </project>
+    </event>
+  </library>
+</fcpxml>

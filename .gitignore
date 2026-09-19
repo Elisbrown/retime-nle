@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build output (rebuilt via `npm run build`)
+dist/
+*.tsbuildinfo
+
+# Pack tarballs
+*.tgz
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Temp / scratch
+tmp/
+temp/
