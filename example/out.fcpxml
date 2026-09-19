@@ -2,9 +2,15 @@
 <fcpxml version="1.10">
   <resources>
     <format id="r1" name="FFVideoFormat1080p30" frameDuration="1/30s" width="1920" height="1080"/>
-    <asset id="r2" name="intro.mp4" src="static/intro.mp4" start="0s" duration="3s" hasVideo="1" hasAudio="1" format="r1"/>
-    <asset id="r3" name="main.mp4" src="static/main.mp4" start="0s" duration="162/30s" hasVideo="1" hasAudio="1" format="r1"/>
-    <asset id="r4" name="outro.mp4" src="static/outro.mp4" start="0s" duration="2s" hasVideo="1" hasAudio="1" format="r1"/>
+    <asset id="r2" name="intro.mp4" start="0s" duration="3s" hasVideo="1" hasAudio="1" format="r1">
+      <media-rep kind="original-media" src="static/intro.mp4"/>
+    </asset>
+    <asset id="r3" name="main.mp4" start="0s" duration="162/30s" hasVideo="1" hasAudio="1" format="r1">
+      <media-rep kind="original-media" src="static/main.mp4"/>
+    </asset>
+    <asset id="r4" name="outro.mp4" start="0s" duration="2s" hasVideo="1" hasAudio="1" format="r1">
+      <media-rep kind="original-media" src="static/outro.mp4"/>
+    </asset>
   </resources>
   <library>
     <event name="demo-timeline">

@@ -72,7 +72,7 @@ export const toFcpxml = (
   const assets = [...assetIds.entries()]
     .map(([src, id]) => {
       const name = escapeXml(src.split(/[\\/]/).pop() || src);
-      return `    <asset id="${id}" name="${name}" src="${escapeXml(src)}" start="0s" duration="${framesToSec(assetDurations.get(src) ?? 0, fps)}" hasVideo="1" hasAudio="1" format="r1"/>`;
+      return `    <asset id="${id}" name="${name}" start="0s" duration="${framesToSec(assetDurations.get(src) ?? 0, fps)}" hasVideo="1" hasAudio="1" format="r1">\n      <media-rep kind="original-media" src="${escapeXml(src)}"/>\n    </asset>`;
     })
     .join("\n");
 

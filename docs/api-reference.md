@@ -29,7 +29,7 @@ exportTimeline(clips, 30, "otio", "demo-timeline"); // .otio JSON
 
 `src/codecs.ts`:
 
-- `toFcpxml(clips, fps, compositionId, opts?)` — FCPXML 1.10 with a `<resources>` block (one `<format>`, one `<asset>` per unique `src`) and `<asset-clip ref="…">` entries in the spine. Times as `frames/fps` rationals (`12/30s`), XML-escaped names/paths. `opts.width/height` default to 1920x1080.
+- `toFcpxml(clips, fps, compositionId, opts?)` — FCPXML 1.10 with a `<resources>` block (one `<format>`, one `<asset>` per unique `src`, each carrying a `<media-rep kind="original-media" src="…">` child) and `<asset-clip ref="…">` entries in the spine. Times as `frames/fps` rationals (`12/30s`), XML-escaped names/paths. `opts.width/height` default to 1920x1080.
 - `toPremiereXml(clips, fps, compositionId)` — xmeml v4 with `<timebase>fps</timebase>`, per-clip `<start>/<end>/<in>/<out>` in frames.
 - `toOtio(clips, fps, compositionId)` — `Timeline.1` JSON with one Video `Track.1`, `RationalTime.1` values, `ExternalReference.1` URLs.
 
