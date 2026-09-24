@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 
 /** How a clip's `src` was resolved to something an NLE can open. */
 export type SrcKind = "file" | "remote" | "unresolved";
@@ -32,15 +33,20 @@ const WINDOWS_ABS = /^[A-Za-z]:[\\/]/;
 const isAbsolutePath = (p: string): boolean =>
   p.startsWith("/") || WINDOWS_ABS.test(p);
 
-/** Percent-encode a filesystem path into a file:// URL. */
+/**
+ * Percent-encode a filesystem path into a file:// URL.
+ *
+ * Uses Node's own encoder, which gets spaces, `#`, `%` and non-ASCII right;
+ * hand-built file:// strings are a classic source of unlinkable media.
+ */
 export const toFileUrl = (absPath: string): string => {
-  let p = absPath;
-  if (WINDOWS_ABS.test(p)) p = `/${p.replace(/\\/g, "/")}`;
-  const encoded = p
-    .split("/")
-    .map((seg) => encodeURIComponent(seg))
-    .join("/");
-  return `file://${encoded}`;
+  try {
+    return pathToFileURL(absPath).href;
+  } catch {
+    let p = absPath;
+    if (WINDOWS_ABS.test(p)) p = `/${p.replace(/\\/g, "/")}`;
+    return `file://${p.split("/").map(encodeURIComponent).join("/")}`;
+  }
 };
 
 /** Relative URL from the directory holding the exported timeline to a file. */

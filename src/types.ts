@@ -1,3 +1,12 @@
+import type {
+  Animated,
+  CaptionElement,
+  ClipAdjustments,
+  MarkerElement,
+  TitleElement,
+  TransitionElement,
+} from "./elements";
+
 export type ExportFormat = "fcpxml" | "premiere" | "otio";
 
 export type Clip = {
@@ -20,11 +29,38 @@ export type Clip = {
    * automatically.
    */
   lane?: number;
+  /** Audio level in dB, constant or keyframed. 0 is unity. */
+  gainDb?: Animated<number>;
+  /** Opacity 0–1, constant or keyframed. */
+  opacity?: Animated<number>;
+  /** Offset from frame center in composition pixels, constant or keyframed. */
+  position?: ClipAdjustments["position"];
+  /** 1 = 100%, constant or keyframed. */
+  scale?: Animated<number>;
+  /** FCP role / Premiere track hint: "dialogue", "music", "effects". */
+  role?: string;
+  /** Markers that travel with this clip. */
+  markers?: MarkerElement[];
 };
 
-export type TimelineManifest = {
-  fps: number;
+/**
+ * A whole timeline: media plus every other element the NLE can represent.
+ * Pass this anywhere a `Clip[]` is accepted.
+ */
+export type TimelineInput = {
   clips: Clip[];
+  /** Text blocks. Editable as text in Final Cut; see docs/elements.md. */
+  titles?: TitleElement[];
+  /** Subtitles. Embedded in FCPXML and written as a .srt sidecar. */
+  captions?: CaptionElement[];
+  /** Timeline-level markers. */
+  markers?: MarkerElement[];
+  /** Cross dissolves between adjacent clips. */
+  transitions?: TransitionElement[];
+};
+
+export type TimelineManifest = TimelineInput & {
+  fps: number;
   compositionId?: string;
   /** Sequence width. Defaults to the first video asset's real width, else 1920. */
   width?: number;
@@ -45,3 +81,13 @@ export type TimelineManifest = {
  * - `auto` — copy anything under the size threshold, link the heavy ones.
  */
 export type AssetMode = "link" | "copy" | "auto";
+
+export type {
+  Animated,
+  CaptionElement,
+  ClipAdjustments,
+  MarkerElement,
+  TextStyle,
+  TitleElement,
+  TransitionElement,
+} from "./elements";

@@ -6,7 +6,8 @@ import { resolveSrc, toFileUrl, toRelativeUrl, uniqueTarget } from "./paths";
 import { guessFromExtension, isImage, probeMedia } from "./probe";
 import { packLanes, validateTimeline } from "./layout";
 import { secondsToFrames } from "./rational";
-import type { AssetMode, Clip } from "./types";
+import { prepareElements } from "./prepare-elements";
+import type { AssetMode, Clip, TimelineInput } from "./types";
 
 export { validateTimeline };
 
@@ -29,6 +30,12 @@ export type PrepareOptions = {
   probe?: boolean;
   /** FCPXML document version: "1.9" for FCP 10.4.9+, "1.10" (default) for 10.6+. */
   fcpxmlVersion?: string;
+  /** Override the Motion template titles reference. See prepare-elements.ts. */
+  titleEffectUid?: string;
+  /** BCP-47 tag for captions that do not carry one. Defaults to "en". */
+  captionLanguage?: string;
+  /** Set by exportProject so warnings can be format-specific. */
+  format?: string;
 };
 
 export const DEFAULT_MAX_COPY_BYTES = 100 * 1024 * 1024;
@@ -65,10 +72,12 @@ const uidFor = (key: string): string => {
  * copies files next to the export.
  */
 export const prepareTimeline = (
-  clips: Clip[],
+  input: Clip[] | TimelineInput,
   fps: number,
   opts: PrepareOptions = {},
 ): PreparedTimeline => {
+  const timelineInput: TimelineInput = Array.isArray(input) ? { clips: input } : input;
+  const clips = timelineInput.clips;
   validateTimeline(clips, fps);
   const warnings: string[] = [];
   const mode: AssetMode = opts.assets ?? "link";
@@ -249,6 +258,12 @@ export const prepareTimeline = (
     durationInFrames: c.durationInFrames,
     startFrom: c.startFrom ?? 0,
     lane: c.lane ?? Number.NaN,
+    gainDb: c.gainDb,
+    opacity: c.opacity,
+    position: c.position,
+    scale: c.scale,
+    role: c.role,
+    markers: c.markers,
   }));
 
   const autoVideo = prepared.filter((c) => Number.isNaN(c.lane) && c.asset.hasVideo);
@@ -262,7 +277,38 @@ export const prepareTimeline = (
 
   prepared.sort((a, b) => a.from - b.from || a.lane - b.lane);
 
-  const totalFrames = prepared.reduce((m, c) => Math.max(m, c.from + c.durationInFrames), 0);
+  const topVideoLane = prepared.reduce((m, c) => Math.max(m, c.lane), 0);
+  const elements = prepareElements(timelineInput, opts, topVideoLane, idOf);
+
+  // A transition only makes sense at a cut; Final Cut rejects one that is not.
+  const cutPoints = new Set(prepared.filter((c) => c.lane === 0).map((c) => c.from));
+  for (const t of elements.transitions) {
+    const lands = [...cutPoints].some((p) => p >= t.from && p <= t.from + t.durationInFrames);
+    if (!lands) {
+      warnings.push(
+        `transition at frame ${t.from} does not sit at a cut — Final Cut will refuse it`,
+      );
+    }
+  }
+
+  // OTIO has no standardized meaning for generic effects, so a level curve
+  // written there is a note to the editor, not a guarantee of the mix.
+  if (opts.format === "otio") {
+    const curved = clips.filter((c) => Array.isArray(c.gainDb) || Array.isArray(c.opacity));
+    if (curved.length > 0) {
+      warnings.push(
+        `${curved.length} clip(s) carry keyframed level or opacity — OTIO stores these as metadata only. Render a stem if the mix has to be exact.`,
+      );
+    }
+  }
+
+  const ends = [
+    ...prepared.map((c) => c.from + c.durationInFrames),
+    ...elements.titles.map((t) => t.from + t.durationInFrames),
+    ...elements.captions.map((c) => c.from + c.durationInFrames),
+    ...elements.transitions.map((t) => t.from + t.durationInFrames),
+  ];
+  const totalFrames = ends.reduce((m, e) => Math.max(m, e), 0);
 
   return {
     name: opts.compositionId ?? "retime-timeline",
@@ -274,6 +320,7 @@ export const prepareTimeline = (
     sequenceFormatId: sequenceFormat.id,
     assets: order.map((s) => assetsBySrc.get(s)!),
     clips: prepared,
+    ...elements,
     fcpxmlVersion: opts.fcpxmlVersion ?? "1.10",
     warnings,
   };

@@ -33,6 +33,7 @@ Declare your timeline once as a `Clip[]` array, render it with Remotion, and exp
 - **Assets travel with the edit**: `--assets copy` bundles everything next to the timeline, `--assets auto` copies the light files and links the heavy ones by path.
 - **Real media properties**: with `ffprobe` on `PATH`, durations, frame size and audio layout come from the files, so a vertical project stays vertical.
 - **Multi-track aware**: overlapping clips become connected clips on their own lanes, audio-only sources sit below the storyline, and holes become explicit gaps.
+- **More than clips**: text as editable Final Cut titles, captions embedded and written as `.srt`, markers, cross dissolves, and audio levels — constant or keyframed, so a ducking curve arrives as real keyframes.
 - **Single source of truth**: the same `Clip[]` drives the Remotion render and every export, so edits and XML can never drift apart.
 - **Zero-dependency core**: the `retime-nle` entry and CLI run on plain Node 18+ — no React needed.
 - **Remotion-ready React entry** (`retime-nle/react`): `ReTimeTrack` wraps clips in Remotion `Sequence`s; `ReTimeExportButtons` drops into `@remotion/player` custom controls for in-browser downloads.
@@ -115,6 +116,27 @@ retime-nle --help
 
 The `retime` command is shipped as a convenience alias. Full flag reference: [cli-reference](docs/cli-reference.md). Manifest schema: [manifest-format](docs/manifest-format.md).
 
+### Elements beyond media
+
+```ts
+exportProject(
+  {
+    clips,
+    titles: [{ text: "Stop scrolling", from: 0, durationInFrames: 75 }],
+    captions: [{ text: "Stop scrolling.", from: 3, durationInFrames: 60 }],
+    markers: [{ name: "C01 HOOK", from: 0, kind: "chapter" }],
+  },
+  30,
+  { format: "fcpxml", outPath: "./out/promo.fcpxml" },
+);
+```
+
+Text becomes an editable `<title>` in Final Cut, a legacy generator plus a
+marker in Premiere, and a generator reference in OTIO. Captions are embedded in
+FCPXML and always written as a `.srt` sidecar. What each format can and cannot
+carry — and why bespoke animation can only arrive as rendered pixels — is in
+[elements](docs/elements.md).
+
 ### Assets
 
 ```bash
@@ -173,11 +195,13 @@ retime-nle/
   package.json
   tsconfig.json
   src/
-    types.ts       # Clip, TimelineManifest, ExportFormat, AssetMode
+    types.ts       # Clip, TimelineInput, TimelineManifest, ExportFormat
+    elements.ts    # titles, captions, markers, transitions, levels
     model.ts       # PreparedTimeline: resolved assets, lanes, formats
     paths.ts       # src resolution, file:// URLs, path mapping
     probe.ts       # ffprobe media properties
     prepare.ts     # resolve + probe + copy assets -> PreparedTimeline
+    prepare-elements.ts # lanes and generator resources for non-media elements
     rational.ts    # exact frame-duration time math
     layout.ts      # validation, lane packing
     codecs.ts      # toFcpxml, toPremiereXml, toOtio
@@ -214,6 +238,7 @@ retime-nle/
 - [Installation](docs/installation.md) — npm, peers per entry point, build scripts
 - [Using retime-nle in your Remotion project](docs/remotion-project-guide.md) — consumer end-to-end guide
 - [Quickstart](docs/quickstart.md) — first export in minutes
+- [Elements](docs/elements.md) — titles, captions, markers, levels: what each NLE can carry
 - [Assets](docs/assets.md) — how sources are resolved, copy vs link, relinking
 - [Manifest format](docs/manifest-format.md) — `Clip` / `TimelineManifest` schema and validation rules
 - [CLI reference](docs/cli-reference.md) — flags, defaults, exit cases

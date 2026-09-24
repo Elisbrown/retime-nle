@@ -5,12 +5,19 @@ import type { PreparedTimeline } from "./model";
 import { prepareTimeline } from "./prepare";
 import type { PrepareOptions } from "./prepare";
 import { extensionFor } from "./export";
-import type { Clip, ExportFormat } from "./types";
+import { toSrt } from "./elements";
+import type { Clip, ExportFormat, TimelineInput } from "./types";
 
 export type ExportProjectOptions = PrepareOptions & {
   format?: ExportFormat;
   /** Throw instead of warning when an asset cannot be found. */
   strict?: boolean;
+  /**
+   * Write captions as a `.srt` next to the export. Defaults to true whenever
+   * the timeline has captions — Premiere and Resolve import SRT reliably,
+   * while only FCPXML carries captions inline.
+   */
+  srt?: boolean;
 };
 
 export type ExportProjectResult = {
@@ -20,6 +27,8 @@ export type ExportProjectResult = {
   warnings: string[];
   missing: string[];
   copied: Array<{ from: string; to: string }>;
+  /** Path of the .srt sidecar, when one was written. */
+  srtPath?: string;
 };
 
 /**
@@ -27,12 +36,12 @@ export type ExportProjectResult = {
  * the export, and serialize the timeline. Writes the file when `outPath` is set.
  */
 export const exportProject = (
-  clips: Clip[],
+  input: Clip[] | TimelineInput,
   fps: number,
   options: ExportProjectOptions = {},
 ): ExportProjectResult => {
   const format = options.format ?? "fcpxml";
-  const timeline = prepareTimeline(clips, fps, options);
+  const timeline = prepareTimeline(input, fps, options);
   const missing = timeline.assets
     .filter((a) => a.kind !== "remote" && !a.exists)
     .map((a) => a.absPath ?? a.url);
@@ -40,10 +49,18 @@ export const exportProject = (
     throw new Error(`Missing asset files:\n  ${missing.join("\n  ")}`);
   }
   const text = serializeTimeline(timeline, format);
+  let srtPath: string | undefined;
   if (options.outPath) {
     const resolved = path.resolve(options.outPath);
     fs.mkdirSync(path.dirname(resolved), { recursive: true });
     fs.writeFileSync(resolved, text, "utf8");
+    if (timeline.captions.length > 0 && options.srt !== false) {
+      srtPath = path.join(
+        path.dirname(resolved),
+        `${path.basename(resolved, path.extname(resolved))}.srt`,
+      );
+      fs.writeFileSync(srtPath, toSrt(timeline.captions, fps), "utf8");
+    }
   }
   return {
     text,
@@ -54,6 +71,7 @@ export const exportProject = (
     copied: timeline.assets
       .filter((a) => a.copiedTo)
       .map((a) => ({ from: a.url, to: a.copiedTo! })),
+    srtPath,
   };
 };
 

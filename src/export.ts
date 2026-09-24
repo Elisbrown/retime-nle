@@ -2,7 +2,8 @@ import { toFcpxml, toOtio, toPremiereXml } from "./codecs";
 import { hashString, packLanes, uuidFrom, validateTimeline } from "./layout";
 import type { PreparedAsset, PreparedClip, PreparedFormat, PreparedTimeline } from "./model";
 import { guessFromExtension, isImage } from "./probe";
-import type { Clip, ExportFormat } from "./types";
+import { prepareElements } from "./prepare-elements";
+import type { Clip, ExportFormat, TimelineInput } from "./types";
 
 export { validateTimeline };
 
@@ -13,6 +14,10 @@ export type TimelineOptions = {
   height?: number;
   /** FCPXML document version: "1.9" for FCP 10.4.9+, "1.10" (default) for 10.6+. */
   fcpxmlVersion?: string;
+  /** Override the Motion template titles reference. */
+  titleEffectUid?: string;
+  /** BCP-47 tag for captions that do not carry one. Defaults to "en". */
+  captionLanguage?: string;
 };
 
 /**
@@ -24,11 +29,13 @@ export type TimelineOptions = {
  * `exportProject()`, which resolves and checks them for you.
  */
 export const buildTimeline = (
-  clips: Clip[],
+  input: Clip[] | TimelineInput,
   fps: number,
   compositionId = "retime-timeline",
   options: TimelineOptions = {},
 ): PreparedTimeline => {
+  const timelineInput: TimelineInput = Array.isArray(input) ? { clips: input } : input;
+  const clips = timelineInput.clips;
   validateTimeline(clips, fps);
   const width = options.width ?? 1920;
   const height = options.height ?? 1080;
@@ -82,6 +89,12 @@ export const buildTimeline = (
     durationInFrames: c.durationInFrames,
     startFrom: c.startFrom ?? 0,
     lane: c.lane ?? Number.NaN,
+    gainDb: c.gainDb,
+    opacity: c.opacity,
+    position: c.position,
+    scale: c.scale,
+    role: c.role,
+    markers: c.markers,
   }));
   const autoVideo = prepared.filter((c) => Number.isNaN(c.lane) && c.asset.hasVideo);
   const autoAudio = prepared.filter((c) => Number.isNaN(c.lane) && !c.asset.hasVideo);
@@ -93,16 +106,25 @@ export const buildTimeline = (
   });
   prepared.sort((a, b) => a.from - b.from || a.lane - b.lane);
 
+  const topVideoLane = prepared.reduce((m, c) => Math.max(m, c.lane), 0);
+  const elements = prepareElements(timelineInput, options, topVideoLane, () => `r${nextId++}`);
+  const ends = [
+    ...prepared.map((c) => c.from + c.durationInFrames),
+    ...elements.titles.map((t) => t.from + t.durationInFrames),
+    ...elements.captions.map((c) => c.from + c.durationInFrames),
+  ];
+
   return {
     name: compositionId,
     fps,
     width,
     height,
-    totalFrames: prepared.reduce((m, c) => Math.max(m, c.from + c.durationInFrames), 0),
+    totalFrames: ends.reduce((m, e) => Math.max(m, e), 0),
     formats,
     sequenceFormatId: sequenceFormat.id,
     assets,
     clips: prepared,
+    ...elements,
     fcpxmlVersion: options.fcpxmlVersion ?? "1.10",
     warnings: [],
   };
@@ -119,7 +141,7 @@ export const serializeTimeline = (
 
 /** Serialize clips straight to an NLE format, without touching the filesystem. */
 export const exportTimeline = (
-  clips: Clip[],
+  clips: Clip[] | TimelineInput,
   fps: number,
   format: ExportFormat,
   compositionId = "retime-timeline",

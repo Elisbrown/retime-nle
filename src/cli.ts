@@ -54,6 +54,9 @@ Usage: retime-nle --manifest ./timeline.json [--format fcpxml|premiere|otio] [op
     --path-map A=B    Rewrite resolved paths from prefix A to prefix B (repeatable)
     --no-probe        Skip ffprobe; fall back to filename-based guesses
     --fcpxml-version  1.9 (FCP 10.4.9+) | 1.10 (default, FCP 10.6+)
+    --title-uid UID   Motion template titles reference (see docs/elements.md)
+    --caption-lang L  BCP-47 tag for captions without one (default: en)
+    --no-srt          Skip the .srt sidecar for captions
 
   Reporting
     --strict          Exit non-zero if any asset file is missing
@@ -118,7 +121,7 @@ const main = (): void => {
 
     let result;
     try {
-      result = exportProject(manifest.clips, fps, {
+      result = exportProject(manifest, fps, {
         format,
         compositionId: id,
         outPath,
@@ -134,6 +137,9 @@ const main = (): void => {
           : undefined,
         probe: !hasFlag("no-probe"),
         fcpxmlVersion: getArg("fcpxml-version"),
+        titleEffectUid: getArg("title-uid"),
+        captionLanguage: getArg("caption-lang"),
+        srt: !hasFlag("no-srt"),
         strict: hasFlag("strict"),
       });
     } catch (err) {
@@ -141,9 +147,20 @@ const main = (): void => {
     }
 
     if (!quiet) {
+      const extras = [
+        result.timeline.titles.length ? `${result.timeline.titles.length} titles` : "",
+        result.timeline.captions.length ? `${result.timeline.captions.length} captions` : "",
+        result.timeline.markers.length ? `${result.timeline.markers.length} markers` : "",
+        result.timeline.transitions.length
+          ? `${result.timeline.transitions.length} transitions`
+          : "",
+      ].filter(Boolean);
       console.log(
-        `Wrote ${outPath} (${format}, ${manifest.clips.length} clips @ ${fps}fps, ${result.timeline.width}x${result.timeline.height})`,
+        `Wrote ${outPath} (${format}, ${manifest.clips.length} clips${
+          extras.length ? `, ${extras.join(", ")}` : ""
+        } @ ${fps}fps, ${result.timeline.width}x${result.timeline.height})`,
       );
+      if (result.srtPath) console.log(`  captions -> ${result.srtPath}`);
       for (const asset of result.timeline.assets) {
         const mark = asset.kind === "remote" ? "remote" : asset.exists ? "ok" : "MISSING";
         const where = asset.copiedTo ?? asset.absPath ?? asset.url;

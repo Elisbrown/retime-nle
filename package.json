@@ -1,6 +1,6 @@
 {
   "name": "retime-nle",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "NLE timeline exporter for Remotion: FCPXML, Premiere Pro XML, OpenTimelineIO \u2014 with asset resolution and relinking",
   "keywords": [
     "remotion",
@@ -53,7 +53,7 @@
     "export:sample": "node ./dist/cli.js --manifest ./example/timeline.json --format fcpxml --out ./example/out.fcpxml",
     "pack:dry": "npm pack --dry-run",
     "prepare": "npm run build",
-    "test": "npm run build && node --test test/export.test.mjs",
+    "test": "npm run build && node --test test/export.test.mjs test/elements.test.mjs",
     "pretest": "bash ./scripts/make-fixtures.sh"
   },
   "engines": {

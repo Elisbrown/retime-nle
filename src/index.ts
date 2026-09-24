@@ -19,4 +19,27 @@ export type {
   PreparedFormat,
   PreparedTimeline,
 } from "./model";
-export type { AssetMode, Clip, ExportFormat, TimelineManifest } from "./types";
+export type {
+  AssetMode,
+  Clip,
+  ExportFormat,
+  TimelineInput,
+  TimelineManifest,
+} from "./types";
+export type {
+  Animated,
+  CaptionElement,
+  ClipAdjustments,
+  MarkerElement,
+  Point,
+  TextStyle,
+  TitleElement,
+  TransitionElement,
+} from "./elements";
+export { toSrt } from "./elements";
+export { DEFAULT_TITLE_EFFECT_UID } from "./prepare-elements";
+export type {
+  PreparedCaption,
+  PreparedTitle,
+  PreparedTransition,
+} from "./model";
