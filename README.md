@@ -28,7 +28,11 @@ Declare your timeline once as a `Clip[]` array, render it with Remotion, and exp
 
 ## Features
 
-- **Three NLE formats** from one timeline: FCPXML 1.10, Premiere xmeml v4, OTIO `Timeline.1` JSON.
+- **Three NLE formats** from one timeline: FCPXML 1.10, Premiere xmeml v5, OTIO `Timeline.1` JSON.
+- **Media that actually links**: every `src` — `staticFile()` value, Studio URL, relative or absolute path — is resolved to an absolute `file://` URL, checked on disk, and reported. Missing files are named instead of silently importing as red frames.
+- **Assets travel with the edit**: `--assets copy` bundles everything next to the timeline, `--assets auto` copies the light files and links the heavy ones by path.
+- **Real media properties**: with `ffprobe` on `PATH`, durations, frame size and audio layout come from the files, so a vertical project stays vertical.
+- **Multi-track aware**: overlapping clips become connected clips on their own lanes, audio-only sources sit below the storyline, and holes become explicit gaps.
 - **Single source of truth**: the same `Clip[]` drives the Remotion render and every export, so edits and XML can never drift apart.
 - **Zero-dependency core**: the `retime-nle` entry and CLI run on plain Node 18+ — no React needed.
 - **Remotion-ready React entry** (`retime-nle/react`): `ReTimeTrack` wraps clips in Remotion `Sequence`s; `ReTimeExportButtons` drops into `@remotion/player` custom controls for in-browser downloads.
@@ -47,23 +51,35 @@ Requirements: Node.js 18+. React 18+, `remotion` 4+, and `@remotion/player` 4+ a
 CLI — export the bundled sample manifest to all three formats:
 
 ```bash
-npx -p retime-nle retime-nle --manifest ./example/timeline.json --format fcpxml --out ./example/out.fcpxml
-npx -p retime-nle retime-nle --manifest ./example/timeline.json --format premiere --out ./example/out.xml
-npx -p retime-nle retime-nle --manifest ./example/timeline.json --format otio --out ./example/out.otio
+npx -p retime-nle retime-nle --manifest ./example/timeline.json --all-formats --public-dir ./public
+```
+
+Every run prints where each asset resolved to:
+
+```text
+Wrote ./example/demo-timeline.fcpxml (fcpxml, 3 clips @ 30fps, 1080x1920)
+  [ok] intro -> /Users/me/promo/public/footage/intro.mp4
+  [MISSING] outro -> /Users/me/promo/public/footage/outro.mp4
 ```
 
 Code — export from any Node script:
 
 ```ts
-import { exportTimeline } from "retime-nle";
+import { exportProject } from "retime-nle";
 import type { Clip } from "retime-nle";
 
 const clips: Clip[] = [
-  { src: "static/intro.mp4", from: 0, durationInFrames: 90, name: "Intro" },
-  { src: "static/main.mp4", from: 90, durationInFrames: 150, name: "Main", startFrom: 12 },
+  { src: "/footage/intro.mp4", from: 0, durationInFrames: 90, name: "Intro" },
+  { src: "/footage/main.mp4", from: 90, durationInFrames: 150, name: "Main", startFrom: 12 },
 ];
 
-const xml = exportTimeline(clips, 30, "fcpxml", "demo-timeline");
+const { text, missing } = exportProject(clips, 30, {
+  format: "fcpxml",
+  compositionId: "demo-timeline",
+  publicDir: "./public",
+  assets: "auto",
+  outPath: "./out/nle/demo.fcpxml",
+});
 ```
 
 ## Export formats
@@ -99,10 +115,24 @@ retime-nle --help
 
 The `retime` command is shipped as a convenience alias. Full flag reference: [cli-reference](docs/cli-reference.md). Manifest schema: [manifest-format](docs/manifest-format.md).
 
+### Assets
+
+```bash
+retime-nle --manifest ./timeline.json --assets link   # reference files in place (default)
+retime-nle --manifest ./timeline.json --assets copy   # bundle everything next to the export
+retime-nle --manifest ./timeline.json --assets auto --max-copy-mb 100
+```
+
+`auto` is the answer to "ship the whole project, or at least paths for the heavy
+stuff": graphics, stings and voice-over are copied beside the timeline, and
+multi-gigabyte masters are linked by absolute path. Full behavior, including
+`--path-map` for render-farm-to-edit-suite path rewriting: [assets](docs/assets.md).
+
 ### Programmatic export
 
 ```ts
-import { exportTimeline, extensionFor, mimeFor, validateTimeline } from "retime-nle";
+import { exportProject } from "retime-nle";              // Node: resolves + checks media
+import { exportTimeline, extensionFor, mimeFor } from "retime-nle"; // browser-safe
 ```
 
 Signatures and error cases: [api-reference](docs/api-reference.md).
@@ -143,9 +173,16 @@ retime-nle/
   package.json
   tsconfig.json
   src/
-    types.ts       # Clip, TimelineManifest, ExportFormat
+    types.ts       # Clip, TimelineManifest, ExportFormat, AssetMode
+    model.ts       # PreparedTimeline: resolved assets, lanes, formats
+    paths.ts       # src resolution, file:// URLs, path mapping
+    probe.ts       # ffprobe media properties
+    prepare.ts     # resolve + probe + copy assets -> PreparedTimeline
+    rational.ts    # exact frame-duration time math
+    layout.ts      # validation, lane packing
     codecs.ts      # toFcpxml, toPremiereXml, toOtio
-    export.ts      # exportTimeline, validateTimeline, extensionFor, mimeFor
+    export.ts      # browser-safe exportTimeline, extensionFor, mimeFor
+    node.ts        # exportProject (resolves media, writes the file)
     cli.ts         # bin: retime-nle (alias: retime)
     index.ts       # public core entry (retime-nle)
     react.ts       # public React entry (retime-nle/react)
@@ -177,6 +214,7 @@ retime-nle/
 - [Installation](docs/installation.md) — npm, peers per entry point, build scripts
 - [Using retime-nle in your Remotion project](docs/remotion-project-guide.md) — consumer end-to-end guide
 - [Quickstart](docs/quickstart.md) — first export in minutes
+- [Assets](docs/assets.md) — how sources are resolved, copy vs link, relinking
 - [Manifest format](docs/manifest-format.md) — `Clip` / `TimelineManifest` schema and validation rules
 - [CLI reference](docs/cli-reference.md) — flags, defaults, exit cases
 - [Player integration](docs/player-integration.md) — `renderCustomControls` wiring

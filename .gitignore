@@ -32,6 +32,9 @@ desktop.ini
 !.vscode/extensions.json
 .idea/
 
+# Generated test media (rebuild with scripts/make-fixtures.sh)
+test/fixtures/public/
+
 # Temp / scratch
 tmp/
 temp/

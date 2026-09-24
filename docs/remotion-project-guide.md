@@ -24,16 +24,16 @@ export const fps = 30;
 export const compositionId = "demo-timeline";
 
 export const clips: Clip[] = [
-  { src: "static/intro.mp4", from: 0, durationInFrames: 90, name: "Intro" },
-  { src: "static/main.mp4", from: 90, durationInFrames: 150, name: "Main", startFrom: 12 },
-  { src: "static/outro.mp4", from: 240, durationInFrames: 60, name: "Outro" },
+  { src: "/footage/intro.mp4", from: 0, durationInFrames: 90, name: "Intro" },
+  { src: "/footage/main.mp4", from: 90, durationInFrames: 150, name: "Main", startFrom: 12 },
+  { src: "/footage/outro.mp4", from: 240, durationInFrames: 60, name: "Outro" },
 ];
 ```
 
 Rules (enforced by `validateTimeline`):
 
 - `from`: integer frames, `>= 0`. `durationInFrames`: integer frames, `> 0`.
-- `src`: path as the NLE will see it — typically your `public/`-served asset (e.g. `static/intro.mp4` with `staticFile()` in Remotion).
+- `src`: where the media lives. Use the `staticFile()` value (`/footage/intro.mp4`), a path relative to the manifest, or an absolute path — the exporter resolves it to an absolute `file://` URL and tells you if the file is not there. Pass `--public-dir ./public` so `staticFile()` srcs resolve. See [assets](assets.md).
 - `startFrom` (optional): in-point into the source file, in frames. Defaults to `0`.
 
 Field reference: [manifest-format](manifest-format.md). A ready-made example lives in the package repo at `example/clips.ts`.
@@ -73,9 +73,7 @@ Pick CLI or code — both read the same `clips` array, so output is identical.
 ```
 
 ```bash
-npx retime-nle --manifest ./src/retime/timeline.json --format fcpxml --out ./out/demo.fcpxml
-npx retime-nle --manifest ./src/retime/timeline.json --format premiere --out ./out/demo.xml
-npx retime-nle --manifest ./src/retime/timeline.json --format otio --out ./out/demo.otio
+npx retime-nle --manifest ./src/retime/timeline.json --public-dir ./public --all-formats --out ./out/nle/demo.fcpxml --strict
 ```
 
 Flag details: [cli-reference](cli-reference.md).
@@ -83,11 +81,17 @@ Flag details: [cli-reference](cli-reference.md).
 **Option B — export from code** (e.g. a Remotion render script or post-render step):
 
 ```ts
-import { exportTimeline } from "retime-nle";
+import { exportProject } from "retime-nle";
 import { clips, fps, compositionId } from "./retime/clips";
-import { writeFileSync } from "node:fs";
 
-writeFileSync("./out/demo.fcpxml", exportTimeline(clips, fps, "fcpxml", compositionId));
+const { missing } = exportProject(clips, fps, {
+  format: "fcpxml",
+  compositionId,
+  publicDir: "./public",
+  assets: "auto",
+  outPath: "./out/nle/demo.fcpxml",
+});
+if (missing.length) console.warn("Offline media:", missing);
 ```
 
 ## 5. Optional: in-browser export buttons (Player preview)
@@ -119,6 +123,7 @@ Stock Remotion Studio has no third-party menu slot — for Studio workflows use 
 ## 6. Hand off to the NLE
 
 - **Premiere Pro**: `File > Import`, select the `.xml`. Check clip order and in/out points against `startFrom`.
+- Media that has moved since export: relink in the NLE, or re-export with `--path-map OLD=NEW`.
 - **DaVinci Resolve**: `File > Import > Timeline`, select the `.otio`; relink offline media to your local assets folder.
 - **Final Cut Pro**: import the `.fcpxml`.
 

@@ -2,6 +2,8 @@ node_modules
 src
 example
 docs
+test
+scripts
 tsconfig.json
 *.log
 *.tgz

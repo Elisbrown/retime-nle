@@ -1,11 +1,25 @@
 {
   "OTIO_SCHEMA": "Timeline.1",
   "name": "demo-timeline",
+  "global_start_time": {
+    "OTIO_SCHEMA": "RationalTime.1",
+    "rate": 30,
+    "value": 0
+  },
+  "metadata": {
+    "retime": {
+      "fps": 30,
+      "width": 1080,
+      "height": 1920
+    }
+  },
   "tracks": {
     "OTIO_SCHEMA": "Stack.1",
+    "name": "demo-timeline",
     "children": [
       {
         "OTIO_SCHEMA": "Track.1",
+        "name": "V1",
         "kind": "Video",
         "children": [
           {
@@ -24,26 +38,29 @@
                 "value": 90
               }
             },
-            "available_range": {
-              "OTIO_SCHEMA": "TimeRange.1",
-              "start_time": {
-                "OTIO_SCHEMA": "RationalTime.1",
-                "rate": 30,
-                "value": 0
-              },
-              "duration": {
-                "OTIO_SCHEMA": "RationalTime.1",
-                "rate": 30,
-                "value": 1050
+            "media_reference": {
+              "OTIO_SCHEMA": "ExternalReference.1",
+              "name": "intro",
+              "target_url": "file:///Users/you/remotion-project/public/footage/intro.mp4",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 0
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 120
+                }
               }
             },
             "metadata": {
-              "retime_from": 0,
-              "retime_src": "static/intro.mp4"
-            },
-            "media_reference": {
-              "OTIO_SCHEMA": "ExternalReference.1",
-              "target_url": "static/intro.mp4"
+              "retime": {
+                "timeline_start": 0,
+                "source": "/Users/you/remotion-project/public/footage/intro.mp4"
+              }
             }
           },
           {
@@ -62,26 +79,29 @@
                 "value": 150
               }
             },
-            "available_range": {
-              "OTIO_SCHEMA": "TimeRange.1",
-              "start_time": {
-                "OTIO_SCHEMA": "RationalTime.1",
-                "rate": 30,
-                "value": 0
-              },
-              "duration": {
-                "OTIO_SCHEMA": "RationalTime.1",
-                "rate": 30,
-                "value": 1122
+            "media_reference": {
+              "OTIO_SCHEMA": "ExternalReference.1",
+              "name": "main",
+              "target_url": "file:///Users/you/remotion-project/public/footage/main.mp4",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 0
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 180
+                }
               }
             },
             "metadata": {
-              "retime_from": 90,
-              "retime_src": "static/main.mp4"
-            },
-            "media_reference": {
-              "OTIO_SCHEMA": "ExternalReference.1",
-              "target_url": "static/main.mp4"
+              "retime": {
+                "timeline_start": 90,
+                "source": "/Users/you/remotion-project/public/footage/main.mp4"
+              }
             }
           },
           {
@@ -100,7 +120,42 @@
                 "value": 60
               }
             },
-            "available_range": {
+            "media_reference": {
+              "OTIO_SCHEMA": "ExternalReference.1",
+              "name": "outro",
+              "target_url": "file:///Users/you/remotion-project/public/footage/outro.mp4",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 0
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 180
+                }
+              }
+            },
+            "metadata": {
+              "retime": {
+                "timeline_start": 240,
+                "source": "/Users/you/remotion-project/public/footage/outro.mp4"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "OTIO_SCHEMA": "Track.1",
+        "name": "A1",
+        "kind": "Audio",
+        "children": [
+          {
+            "OTIO_SCHEMA": "Clip.1",
+            "name": "Voice-over",
+            "source_range": {
               "OTIO_SCHEMA": "TimeRange.1",
               "start_time": {
                 "OTIO_SCHEMA": "RationalTime.1",
@@ -110,16 +165,32 @@
               "duration": {
                 "OTIO_SCHEMA": "RationalTime.1",
                 "rate": 30,
-                "value": 1020
+                "value": 300
               }
-            },
-            "metadata": {
-              "retime_from": 240,
-              "retime_src": "static/outro.mp4"
             },
             "media_reference": {
               "OTIO_SCHEMA": "ExternalReference.1",
-              "target_url": "static/outro.mp4"
+              "name": "voiceover",
+              "target_url": "file:///Users/you/remotion-project/public/audio/voiceover.wav",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 0
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "rate": 30,
+                  "value": 300
+                }
+              }
+            },
+            "metadata": {
+              "retime": {
+                "timeline_start": 0,
+                "source": "/Users/you/remotion-project/public/audio/voiceover.wav"
+              }
             }
           }
         ]

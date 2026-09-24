@@ -2,8 +2,30 @@
   "fps": 30,
   "compositionId": "demo-timeline",
   "clips": [
-    { "src": "static/intro.mp4", "from": 0, "durationInFrames": 90, "name": "Intro" },
-    { "src": "static/main.mp4", "from": 90, "durationInFrames": 150, "name": "Main", "startFrom": 12 },
-    { "src": "static/outro.mp4", "from": 240, "durationInFrames": 60, "name": "Outro" }
+    {
+      "src": "/footage/intro.mp4",
+      "from": 0,
+      "durationInFrames": 90,
+      "name": "Intro"
+    },
+    {
+      "src": "/footage/main.mp4",
+      "from": 90,
+      "durationInFrames": 150,
+      "name": "Main",
+      "startFrom": 12
+    },
+    {
+      "src": "/footage/outro.mp4",
+      "from": 240,
+      "durationInFrames": 60,
+      "name": "Outro"
+    },
+    {
+      "src": "/audio/voiceover.wav",
+      "from": 0,
+      "durationInFrames": 300,
+      "name": "Voice-over"
+    }
   ]
 }

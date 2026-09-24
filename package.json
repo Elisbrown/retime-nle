@@ -1,7 +1,7 @@
 {
   "name": "retime-nle",
-  "version": "0.1.2",
-  "description": "NLE timeline exporter for Remotion: FCPXML, Premiere Pro XML, OpenTimelineIO",
+  "version": "0.2.0",
+  "description": "NLE timeline exporter for Remotion: FCPXML, Premiere Pro XML, OpenTimelineIO \u2014 with asset resolution and relinking",
   "keywords": [
     "remotion",
     "nle",
@@ -51,7 +51,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build",
     "export:sample": "node ./dist/cli.js --manifest ./example/timeline.json --format fcpxml --out ./example/out.fcpxml",
-    "pack:dry": "npm pack --dry-run"
+    "pack:dry": "npm pack --dry-run",
+    "prepare": "npm run build",
+    "test": "npm run build && node --test test/export.test.mjs",
+    "pretest": "bash ./scripts/make-fixtures.sh"
   },
   "engines": {
     "node": ">=18"
@@ -65,13 +68,19 @@
     "@remotion/player": ">=4"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": false },
-    "remotion": { "optional": true },
-    "@remotion/player": { "optional": true }
+    "react": {
+      "optional": false
+    },
+    "remotion": {
+      "optional": true
+    },
+    "@remotion/player": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.9.0"
   }
 }

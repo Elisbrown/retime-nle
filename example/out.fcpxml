@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
 <fcpxml version="1.10">
   <resources>
-    <format id="r1" name="FFVideoFormat1080p30" frameDuration="1/30s" width="1920" height="1080"/>
-    <asset id="r2" name="intro.mp4" start="0s" duration="3s" hasVideo="1" hasAudio="1" format="r1">
-      <media-rep kind="original-media" src="static/intro.mp4"/>
+    <format id="r1" frameDuration="100/3000s" width="1080" height="1920" colorSpace="1-1-1"/>
+    <asset id="r2" name="intro" uid="7f54953b-7a1b-c732-4beb-ecb99ff6e328" start="0s" duration="4s" hasVideo="1" format="r1" videoSources="1" hasAudio="1" audioSources="1" audioChannels="1" audioRate="44100">
+      <media-rep kind="original-media" src="file:///Users/you/remotion-project/public/footage/intro.mp4"/>
     </asset>
-    <asset id="r3" name="main.mp4" start="0s" duration="162/30s" hasVideo="1" hasAudio="1" format="r1">
-      <media-rep kind="original-media" src="static/main.mp4"/>
+    <asset id="r3" name="main" uid="d95fc549-ae03-0601-220a-d9cf1dcad0ca" start="0s" duration="6s" hasVideo="1" format="r1" videoSources="1">
+      <media-rep kind="original-media" src="file:///Users/you/remotion-project/public/footage/main.mp4"/>
     </asset>
-    <asset id="r4" name="outro.mp4" start="0s" duration="2s" hasVideo="1" hasAudio="1" format="r1">
-      <media-rep kind="original-media" src="static/outro.mp4"/>
+    <asset id="r4" name="outro" uid="acb51cf4-e633-a46a-51a9-f4b44e1dfa58" start="0s" duration="6s" hasVideo="1" format="r1" videoSources="1">
+      <media-rep kind="original-media" src="file:///Users/you/remotion-project/public/footage/outro.mp4"/>
+    </asset>
+    <asset id="r5" name="voiceover" uid="3d1e954d-e289-b2bc-9653-f42207623911" start="0s" duration="10s" hasVideo="0" hasAudio="1" audioSources="1" audioChannels="1" audioRate="44100">
+      <media-rep kind="original-media" src="file:///Users/you/remotion-project/public/audio/voiceover.wav"/>
     </asset>
   </resources>
   <library>
@@ -17,9 +21,11 @@
       <project name="demo-timeline">
         <sequence format="r1" duration="10s" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
           <spine>
-        <asset-clip ref="r2" name="Intro" offset="0s" start="0s" duration="3s"/>
-        <asset-clip ref="r3" name="Main" offset="3s" start="12/30s" duration="5s"/>
-        <asset-clip ref="r4" name="Outro" offset="8s" start="0s" duration="2s"/>
+            <asset-clip ref="r2" name="Intro" offset="0s" duration="3s" start="0s" format="r1" tcFormat="NDF" audioRole="dialogue">
+              <asset-clip lane="-1" ref="r5" name="Voice-over" offset="0s" duration="10s" start="0s" audioRole="dialogue"/>
+            </asset-clip>
+            <asset-clip ref="r3" name="Main" offset="3s" duration="5s" start="2/5s" format="r1" tcFormat="NDF"/>
+            <asset-clip ref="r4" name="Outro" offset="8s" duration="2s" start="0s" format="r1" tcFormat="NDF"/>
           </spine>
         </sequence>
       </project>
